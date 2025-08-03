@@ -7,22 +7,25 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../../api/auth.api';
 
 type LoginForm = {
-  emailOrMobile: string;
+  mobileOrEmail: string;
   password: string;
 };
 
 const Login = () => {
   const [form, setForm] = useState<LoginForm>({
-    emailOrMobile: '',
+    mobileOrEmail: '',
     password: '',
   });
-
   const [isValid, setIsValid] = useState(false);
+  const navigate = useNavigate();
+
 
   const validateInput = (value: string, type: keyof LoginForm) => {
-    if (type === 'emailOrMobile') {
+    if (type === 'mobileOrEmail') {
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
       const isMobile = /^[6-9]\d{9}$/.test(value);
       return isEmail || isMobile;
@@ -38,22 +41,27 @@ const Login = () => {
     setForm(updatedForm);
 
     const isFormValid =
-      validateInput(updatedForm.emailOrMobile, 'emailOrMobile') &&
+      validateInput(updatedForm.mobileOrEmail, 'mobileOrEmail') &&
       validateInput(updatedForm.password, 'password');
     setIsValid(isFormValid);
   };
 
-  const handleLogin = () => {
-    if (form.emailOrMobile === 'admin@test.com' && form.password === 'admin123') {
-      // showToast('Login successful!', 'success');
-      // navigate(routePaths.dashboard); // simulate protected page
+  const handleLogin = async () => {
+    const response = await login(form);
+    console.log("response: ", response)
+    if (response.status) {
+
     } else {
-      // showToast('Invalid credentials', 'error');
+
     }
   };
 
+  const handleRestration = () => {
+    navigate('/registration')
+  }
+
   return (
-    <Container maxWidth="sm" sx={{ mt: 8 }}>
+    <Container sx={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <Box
         component={Paper}
         p={4}
@@ -63,14 +71,16 @@ const Login = () => {
         flexDirection="column"
         gap={3}
         alignItems="center"
+        maxWidth={'sm'}
+        width={500}
       >
         <Typography variant="h5">Login to TrustVault</Typography>
 
         <TextField
           fullWidth
           label="Email or Mobile Number"
-          value={form.emailOrMobile}
-          onChange={(e) => handleChange('emailOrMobile', e.target.value)}
+          value={form.mobileOrEmail}
+          onChange={(e) => handleChange('mobileOrEmail', e.target.value)}
         />
 
         <TextField
@@ -88,6 +98,13 @@ const Login = () => {
           onClick={handleLogin}
         >
           Login
+        </Button>
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={handleRestration}
+        >
+          Register
         </Button>
 
         <Box display="flex" justifyContent="space-between" width="100%">
